@@ -21,6 +21,7 @@ the movie ends
 '''
 
 import os
+import subprocess
 import random
 import ctypes
 
@@ -40,12 +41,12 @@ for n in range(0, len(MONITORS)):
     mtime = random_number // 60
     stime = random_number % 60
 
-    os.system('ffmpeg -ss {:02d}:{:02d}:{:02d} -i 5cmps.mkv -vframes 1 {:02d}.png -y'.format(
+    subprocess.call('ffmpeg -ss {:02d}:{:02d}:{:02d} -i 5cmps.mkv -vframes 1 {:02d}.png -y'.format(
         htime,
         mtime,
         stime,
         n
-    ))
+    ), shell=True)
 
     xscale = 0
     yscale = 0
@@ -57,31 +58,28 @@ for n in range(0, len(MONITORS)):
         xscale = -1
         yscale = MONITORS[n][3]
 
-    os.system('ffmpeg -i {0:02d}.png -vf scale={1}:{2} {0:02d}.png -y'.format(
+    subprocess.call('ffmpeg -i {0:02d}.png -vf scale={1}:{2} {0:02d}.png -y'.format(
         n,
         xscale,
         yscale
-    ))
-    os.system('ffmpeg -i {0:02d}.png -filter:v "crop={1}:{2}" {0:02d}.png -y'.format(
+    ), shell=True)
+    subprocess.call('ffmpeg -i {0:02d}.png -filter:v "crop={1}:{2}" {0:02d}.png -y'.format(
         n,
         MONITORS[n][2],
         MONITORS[n][3]
-    ))
-    os.system('ffmpeg -i {0:02d}.png -vf "pad=width={1}:height={2}:x={3}:y={4}:color=black" {0:02d}.png -y'.format(
+    ), shell=True)
+    subprocess.call('ffmpeg -i {0:02d}.png -vf "pad=width={1}:height={2}:x={3}:y={4}:color=black" {0:02d}.png -y'.format(
         n,
         MONITORS[n][2],
         1237,
         0,
         MONITORS[n][1]
-    ))
+    ), shell=True)
 
 for n in range(0, len(MONITORS) - 1):
-    os.system('ffmpeg -i {0:02d}.png -i {1:02d}.png -filter_complex hstack {1:02d}.png -y'.format(
+    subprocess.call('ffmpeg -i {0:02d}.png -i {1:02d}.png -filter_complex hstack {1:02d}.png -y'.format(
         n,
         n + 1
-    ))
-
-for n in range(0, len(MONITORS) - 1):
-    os.system("del {0:02d}.png".format(n))
+    ), shell=True)
 
 ctypes.windll.user32.SystemParametersInfoW(20, 0, os.path.join(os.getcwd(), '{:02d}.png'.format(len(MONITORS) - 1)), 1)
